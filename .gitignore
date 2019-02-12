@@ -1,1 +1,10 @@
+# ignore all txt files
+*.txt
 
+*.csv
+
+# ignore venv folder
+exp/venv/
+
+# ignore hidden files
+.*
