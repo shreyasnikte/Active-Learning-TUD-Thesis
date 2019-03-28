@@ -192,8 +192,8 @@ class Simulator:
     def auto_noise_addition(self, levels, constraints):
 #         select the random users and their behaviour with random latency
         self.noisy_tariff["h1_start"] = [random.choice(range(constraints["h1_start"]-2, 
-                                                             constraints["h1_start"]+int(trials_.duration/2))) for _ in range(len(self.avail_users))]
-        self.noisy_tariff["h1_end"] = [random.choice(range(constraints["h1_end"]-int(trials_.duration/2), 
+                                                             constraints["h1_start"]+int(trials_.duration/2-1))) for _ in range(len(self.avail_users))]
+        self.noisy_tariff["h1_end"] = [random.choice(range(constraints["h1_end"]-int(trials_.duration/2+1), 
                                                            constraints["h1_end"]+2)) for _ in range(len(self.avail_users))]
     
 
