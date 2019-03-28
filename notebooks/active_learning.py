@@ -575,7 +575,7 @@ if __name__ == '__main__':
     d2 = {'0':mse_Rand}
     mse_Rand_total = pd.DataFrame(data=d2)
     
-    for i in range(3):
+    for i in range(20):
         print("Iteration ", i+2)
         mse_ActiveL, mse_Rand = trials_.run()
         mse_AL_total.loc[:,str(i+1)] = mse_ActiveL
