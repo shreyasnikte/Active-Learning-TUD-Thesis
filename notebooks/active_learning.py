@@ -52,8 +52,8 @@ params = {
           'tariff_policy':[],
     
 #         Set Occupant behaviour dynamics
-          'active_users': 0.1,#.5,     # Set the % of users who are willing to engage in the experiments
-          'avail_users': 0.1,#.5,       # Set the % of users who will be available to participate in specific experiment
+          'active_users': 0.2,#.5,     # Set the % of users who are willing to engage in the experiments
+          'avail_users': 0.2,#.5,       # Set the % of users who will be available to participate in specific experiment
           'user_latency': 0,         # Set the values which correspond to real life participation delay for users 
           'frac_users_exp':1,      # Fraction of users selected for a particular trial
           
@@ -176,9 +176,10 @@ class Simulator:
     
 #         Sample a random day timestamp
         shortlist = self.df.sample(axis = 0).index
-        day = random.choice(shortlist.day.values)
-        month = random.choice(shortlist.month.values)
-        year = random.choice(shortlist.year.values)
+        random_timestamp = random.choice(shortlist)
+        day = random_timestamp.day #random.choice(shortlist.day.values)
+        month = random_timestamp.month #random.choice(shortlist.month.values)
+        year = random_timestamp.year #random.choice(shortlist.year.values)
         timestamp = str(year)+"-"+str(month)+"-"+str(day)
         self.sample = self.df.loc[timestamp,self.avail_users]
         
@@ -192,8 +193,8 @@ class Simulator:
     def auto_noise_addition(self, levels, constraints):
 #         select the random users and their behaviour with random latency
         self.noisy_tariff["h1_start"] = [random.choice(range(constraints["h1_start"]-2, 
-                                                             constraints["h1_start"]+int(trials_.duration/2-1))) for _ in range(len(self.avail_users))]
-        self.noisy_tariff["h1_end"] = [random.choice(range(constraints["h1_end"]-int(trials_.duration/2+1), 
+                                                             constraints["h1_start"]+int(trials_.duration/2)-2)) for _ in range(len(self.avail_users))]
+        self.noisy_tariff["h1_end"] = [random.choice(range(constraints["h1_end"]-int(trials_.duration/2)+2, 
                                                            constraints["h1_end"]+2)) for _ in range(len(self.avail_users))]
     
 
@@ -207,7 +208,12 @@ class Simulator:
         for i in range(len(self.avail_users)):
             self.df_tariff.loc[self.noisy_tariff["h1_start"][i]:self.noisy_tariff["h1_end"][i], self.avail_users[i]] = 2
 
-        self.df_tariff.index = self.sample.index
+        if len(self.sample.index)==48:
+            self.df_tariff.index = self.sample.index
+            #print(self.sample.index)
+
+        else:
+            print(self.sample.index)
         
         
     
@@ -249,6 +255,9 @@ class Simulator:
             
 
 
+
+
+
 class activeLearner(object):
     
     def __init__(self, df_n, df_weath, params):
@@ -273,7 +282,7 @@ class activeLearner(object):
 #         Generate new tariff signals for one day
         level, constraints = self.get_random_tariff()
         
-#         Get schocastic behaviour of users
+#         Get stochastic behaviour of users
         sim.tariff_policy(level, constraints)
     
     
@@ -372,9 +381,12 @@ class activeLearner(object):
         
         
     def get_random_tariff(self):
-        self.year = random.randrange(2012,2013)
-        self.month = random.randrange(1,12)
-        self.day = random.randrange(1,28)
+        list_ = self.df_n.index
+        
+        timestamp = random.choice(list_)
+        self.year = timestamp.year #random.randrange(2012,2013)
+        self.month = timestamp.month #random.randrange(1,12)
+        self.day = timestamp.day #random.randrange(1,28)
         self.hour = random.randrange(17,18)
         self.minute = random.choice([0,30])
         self.duration = random.randrange(6, 8)
@@ -575,7 +587,7 @@ if __name__ == '__main__':
     d2 = {'0':mse_Rand}
     mse_Rand_total = pd.DataFrame(data=d2)
     
-    for i in range(20):
+    for i in range(200):
         print("Iteration ", i+2)
         mse_ActiveL, mse_Rand = trials_.run()
         mse_AL_total.loc[:,str(i+1)] = mse_ActiveL
